@@ -12,6 +12,8 @@
   - parameter-mining
   - custom-payload
   - remote-payloads
+  - code
+  - gitaction
 
 - title: Modes
   docs:
@@ -26,3 +28,4 @@
   docs:
   - tips/oneliner
   - tips/found-action
+  - tips/cicd

@@ -22,6 +22,7 @@ type Options struct {
 	OutputFile        string `json:"output"`
 	Format            string `json:"format"`
 	FoundAction       string `json:"found-action"`
+	FoundActionShell  string `json:"found-action-shell"`
 	ProxyAddress      string `json:"proxy"`
 	Grep              string `json:"grep"`
 	IgnoreReturn      string `json:"ignore-return"`
@@ -60,6 +61,10 @@ type Options struct {
 	PathReflection    map[int]string
 	RemotePayloads    string
 	RemoteWordlists   string
+	UseHeadless       bool   `json:"use-headless"`
+	UseDeepDXSS       bool   `json:"use-deepdxss"`
+	OnlyPoC           string `json:"only-poc"`
+	OutputAll         bool   `json:"output-all"`
 }
 
 // MassJob is list for mass

@@ -10,6 +10,28 @@ permalink: /docs/modes/server-mode/
 e.g
 ```
 ▶ dalfox server --host 0.0.0.0 --port 8090
+    _..._
+  .' .::::.   __   _   _    ___ _ __ __
+ :  :::::::: |  \ / \ | |  | __/ \\ V /
+ :  :::::::: | o ) o || |_ | _( o )) (
+ '. '::::::' |__/|_n_||___||_| \_//_n_\
+   '-.::''
+
+Parameter Analysis and XSS Scanning tool based on golang
+Finder Of XSS and Dal is the Korean pronunciation of moon. @hahwul
+
+ 🎯  Target                 REST API Mode
+ 🧲  Listen Address         0.0.0.0:8090
+ 🏁  Method                 GET
+ 🖥  Worker                 100
+ 🔦  BAV                    true
+ ⛏  Mining                 true (Gf-Patterns)
+ 🔬  Mining-DOM             true (mining from DOM)
+ ⏱  Timeout                10
+ 📤  FollowRedirect         false
+ 🕰  Started at             2021-07-08 18:10:15.214339875 +0900 KST m=+0.027712246
+
+
 ```
 
 and supported swagger-ui
@@ -87,6 +109,6 @@ The options values are approximately the same as the cli option by default.
 ## Swagger-ui
 Swagger ui is available in the dalfox.
 ```
-http://your-host:your-port/swagger-ui/index.html
+http://your-host:your-port/swagger/index.html
 ```
-e.g `http://localhost:6664/swagger-ui/index.html`
+e.g `http://localhost:6664/swagger/index.html`

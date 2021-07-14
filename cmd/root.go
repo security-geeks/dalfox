@@ -19,9 +19,10 @@ var optionsBool = make(map[string]bool)
 var config, cookie, data, header, p, customPayload, userAgent, blind, output, format, foundAction, proxy, grep, cookieFromRaw string
 var ignoreReturn, miningWord, method, customAlertValue, customAlertType, remotePayloads, remoteWordlists string
 var timeout, concurrence, delay int
-var onlyDiscovery, silence, followRedirect, mining, findingDOM, noColor, noSpinner, onlyCustomPayload, debug bool
+var onlyDiscovery, silence, followRedirect, mining, findingDOM, noColor, noSpinner, onlyCustomPayload, debug, useDeepDXSS, outputAll bool
 var options model.Options
-var skipMiningDom, skipMiningDict, skipMiningAll, skipXSSScan, skipBAV, skipGrep bool
+var skipMiningDom, skipMiningDict, skipMiningAll, skipXSSScan, skipBAV, skipGrep, skipHeadless bool
+var onlyPoC, foundActionShell string
 
 // rootCmd represents the base command when called without any subcommands
 var rootCmd = &cobra.Command{
@@ -58,9 +59,10 @@ func init() {
 	rootCmd.PersistentFlags().StringVar(&customAlertType, "custom-alert-type", "none", "Change alert value type\n  * Example: --custom-alert-type=none / --custom-alert-type=str,none")
 	rootCmd.PersistentFlags().StringVar(&userAgent, "user-agent", "", "Add custom UserAgent")
 	rootCmd.PersistentFlags().StringVarP(&blind, "blind", "b", "", "Add your blind xss\n  * Example: -b hahwul.xss.ht")
-	rootCmd.PersistentFlags().StringVarP(&output, "output", "o", "", "Write to output file")
+	rootCmd.PersistentFlags().StringVarP(&output, "output", "o", "", "Write to output file (By default, only the PoC code is saved)")
 	rootCmd.PersistentFlags().StringVar(&format, "format", "plain", "Stdout output format\n  * Supported: plain / json")
 	rootCmd.PersistentFlags().StringVar(&foundAction, "found-action", "", "If found weak/vuln, action(cmd) to next\n  * Example: --found-action='./notify.sh'")
+	rootCmd.PersistentFlags().StringVar(&foundActionShell, "found-action-shell", "bash", "Select shell application for --found-action")
 	rootCmd.PersistentFlags().StringVar(&proxy, "proxy", "", "Send all request to proxy server\n  * Example: --proxy http://127.0.0.1:8080")
 	rootCmd.PersistentFlags().StringVar(&grep, "grep", "", "Using custom grepping file\n  * Example: --grep ./samples/sample_grep.json")
 	rootCmd.PersistentFlags().StringVar(&ignoreReturn, "ignore-return", "", "Ignore scanning from return code\n  * Example: --ignore-return 302,403,404")
@@ -69,6 +71,7 @@ func init() {
 	rootCmd.PersistentFlags().StringVarP(&cookieFromRaw, "cookie-from-raw", "", "", "Load cookie from burp raw http request\n  * Example: --cookie-from-raw request.txt")
 	rootCmd.PersistentFlags().StringVar(&remotePayloads, "remote-payloads", "", "Using remote payload for XSS testing\n  * Supported: portswigger/payloadbox\n  * Example: --remote-payloads=portswigger,payloadbox")
 	rootCmd.PersistentFlags().StringVar(&remoteWordlists, "remote-wordlists", "", "Using remote wordlists for param mining\n  * Supported: burp/assetnote\n  * Example: --remote-wordlists=burp")
+	rootCmd.PersistentFlags().StringVar(&onlyPoC, "only-poc", "", "Shows only the PoC code for the specified pattern (g: grep / r: reflected / v: verified)\n * Example: --only-poc='g,v'")
 
 	//Int
 	rootCmd.PersistentFlags().IntVar(&timeout, "timeout", 10, "Second of timeout")
@@ -91,6 +94,9 @@ func init() {
 	rootCmd.PersistentFlags().BoolVar(&onlyCustomPayload, "only-custom-payload", false, "Only testing custom payload (required --custom-payload)")
 	rootCmd.PersistentFlags().BoolVar(&skipGrep, "skip-grepping", false, "Skipping built-in grepping")
 	rootCmd.PersistentFlags().BoolVar(&debug, "debug", false, "debug mode, save all log using -o option")
+	rootCmd.PersistentFlags().BoolVar(&skipHeadless, "skip-headless", false, "Skipping headless browser base scanning[DOM XSS and inJS verify]")
+	rootCmd.PersistentFlags().BoolVar(&useDeepDXSS, "deep-domxss", false, "DOM XSS Testing with more payloads on headless [so slow]")
+	rootCmd.PersistentFlags().BoolVar(&outputAll, "output-all", false, "All log write mode (-o or stdout)")
 }
 
 // initConfig reads in config file and ENV variables if set.
@@ -110,6 +116,7 @@ func initConfig() {
 		OutputFile:        output,
 		Format:            format,
 		FoundAction:       foundAction,
+		FoundActionShell:  foundActionShell,
 		ProxyAddress:      proxy,
 		Grep:              grep,
 		IgnoreReturn:      ignoreReturn,
@@ -136,6 +143,10 @@ func initConfig() {
 		MulticastMode:     false,
 		RemotePayloads:    remotePayloads,
 		RemoteWordlists:   remoteWordlists,
+		UseHeadless:       !skipHeadless,
+		UseDeepDXSS:       useDeepDXSS,
+		OnlyPoC:           onlyPoC,
+		OutputAll:         outputAll,
 	}
 	// var skipMiningDom, skipMiningDict, skipMiningAll, skipXSSScan, skipBAV bool
 
